@@ -33,7 +33,7 @@ class ICMPLib:
 
 		    return answer
 
-	def send_icmp_packet(self, my_socket, dest_addr, port, MESSAGE):
+	def send_icmp_packet(self, my_socket, dest_addr, port, data_size):
 
 		    dest_addr  =  socket.gethostbyname(dest_addr)
 
@@ -44,7 +44,10 @@ class ICMPLib:
 
 		    # Make a dummy header with a 0 checksum.
 		    header = struct.pack("bbHHh", self.ICMP_ECHO_REQUEST, 0, my_checksum, ID, 1)
-		    data = MESSAGE
+		    if int(data_size) != 0:
+		    	data = abs(data_size - 42) * "Q"
+		    else:
+			data = ""
 
 		    # Calculate the checksum on the data and the dummy header.
 		    my_checksum = self.checksum(header + data)

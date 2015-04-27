@@ -16,7 +16,8 @@ class HopCount:
 	def printer(self, status, outputFile):
 		print status
 		outputFile.write(status+"\n")	
-
+	
+	# Returns the number of hops till destination. Works exactly as traceroute.
 	def counter(self, dest_name, outputFile):
 		dest_addr = socket.gethostbyname(dest_name)
 		icmp = socket.getprotobyname('icmp')
@@ -30,7 +31,7 @@ class HopCount:
 			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, ttl)
 			recv_socket.bind(("", self.port))
 			icmp_sender = ICMPLib()
-			icmp_sender.send_icmp_packet(send_socket, dest_name, self.port, "")
+			icmp_sender.send_icmp_packet(send_socket, dest_name, self.port, 0)
 			recv_socket.settimeout(self.timeout)
 			curr_addr = None
 			curr_name = None
