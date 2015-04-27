@@ -1,4 +1,4 @@
-import os, socket, struct
+import os, socket, struct, sys
 
 # Based on the "Pure Python version of ICMP ping" from https://github.com/samuel/python-ping
 #
@@ -33,7 +33,7 @@ class ICMPLib:
 
 		    return answer
 
-	def send_icmp_packet(self, my_socket, dest_addr, port, data_size):
+	def send_icmp_packet(self, my_socket, dest_addr, port, packet_size):
 
 		    dest_addr  =  socket.gethostbyname(dest_addr)
 
@@ -44,8 +44,9 @@ class ICMPLib:
 
 		    # Make a dummy header with a 0 checksum.
 		    header = struct.pack("bbHHh", self.ICMP_ECHO_REQUEST, 0, my_checksum, ID, 1)
-		    if int(data_size) != 0:
-		    	data = abs(data_size - 42) * "Q"
+		    headerSize = sys.getsizeof(header) - 1
+		    if int(packet_size) > headerSize:
+		    	data = (packet_size - headerSize) * "Q"
 		    else:
 			data = ""
 

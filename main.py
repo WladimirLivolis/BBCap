@@ -35,13 +35,13 @@ group_2 = LatencyTools()
 printer("\nII) Sending groups of packet pairs...",output)
 
 printer("\n==================== Group #1 ====================",output)
-printer("\nPacket 1 --> data size = 1.5KB | TTL = "+str(k-1)+" hops",output)
-printer("Packet 2 --> data size = 500B  | TTL = "+str(k)+" hops\n",output)
+printer("\nPacket 1 --> packet size = 1.5KB | TTL = "+str(k-1)+" hops",output)
+printer("Packet 2 --> packet size = 500B  | TTL = "+str(k)+" hops\n",output)
 group_1.latency_tester(dest_name, 1500, k-1, 500, k, output)
 
 printer("\n==================== Group #2 ====================",output)
-printer("\nPacket 1 --> data size = 1.5KB | TTL = "+str(k-1)+" hops",output)
-printer("Packet 2 --> data size = 50B   | TTL = "+str(k)+" hops\n",output)
+printer("\nPacket 1 --> packet size = 1.5KB | TTL = "+str(k-1)+" hops",output)
+printer("Packet 2 --> packet size = 50B   | TTL = "+str(k)+" hops\n",output)
 group_2.latency_tester(dest_name, 1500, k-1, 50, k, output)
 
 printer("\nDone!",output)
