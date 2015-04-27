@@ -1,4 +1,4 @@
-import sys, time
+import os, sys, time
 from hop_count import HopCount
 from latency import LatencyTools
 
@@ -20,6 +20,9 @@ MESSAGE3 = "MESSAGE3Lorem ipsum dolor sit amet nullam sodales."
 def printer(status, outputFile):
 	print status
 	outputFile.write(status+"\n")
+
+if not os.path.exists("./logs/"):
+	os.makedirs("./logs/")
 
 localtime   = time.localtime()
 timeString  = time.strftime("%Y%m%d%H%M%S", localtime)
