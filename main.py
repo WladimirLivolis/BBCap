@@ -24,7 +24,7 @@ def printer(status, outputFile):
 localtime   = time.localtime()
 timeString  = time.strftime("%Y%m%d%H%M%S", localtime)
 
-output = open(timeString+".out","w")
+output = open("./logs/"+timeString+".out","w")
 
 timeString = time.strftime("%Y-%m-%d %H:%M:%S", localtime)
 printer("Started at "+timeString,output)
