@@ -15,12 +15,12 @@ class LatencyTools:
 		print status
 		outputFile.write(status+"\n")
 
-	# Sends packet triples to destination and counts the time between the sending of the first
-	# packet and the response to the third packet. TTL1 is first packet's ttl and is supposed
-	# to be the number of hops till destination minus one. TTL2 is second packet's ttl and is
-	# supposed to be the number of hops till destination. TTL3 is third packet's ttl and is
-	# supposed to be the number of hops till destination. packet_size1 should be the desired size
-	# for the first packet. packet_size2 should be the desired size for the second packet.
+	# Sends packet triples to destination and counts the time (RTT) between the sending of the first
+	# packet and the response to the third packet. At the end, returns the smallest RTT. TTL1 is first
+	# packet's ttl and is supposed to be the number of hops till destination minus one. TTL2 is second
+	# packet's ttl and is supposed to be the number of hops till destination. TTL3 is third packet's
+	# ttl and is supposed to be the number of hops till destination. packet_size1 should be the desired
+	# size for the first packet. packet_size2 should be the desired size for the second packet.
 	# packet_size3 should be the desired size for the third packet.
 	def latency_tester(self, dest_name, packet_size1, TTL1, packet_size2, TTL2, packet_size3, TTL3, outputFile):
 		dest_addr = socket.gethostbyname(dest_name)
@@ -57,4 +57,6 @@ class LatencyTools:
 				recv_socket.close()
 			self.printer("*Packet Triple #"+str(count)+" --> RTT = "+str(rtt)+"s",outputFile)
 			count += 1
-		self.printer("\nSmallest RTT = "+str(numpy.min(self.array))+"s",outputFile)			
+		rtt = numpy.min(self.array)
+		self.printer("\nSmallest RTT = "+str(rtt)+"s",outputFile)
+		return rtt		
