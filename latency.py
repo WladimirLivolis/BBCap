@@ -21,12 +21,13 @@ class LatencyTools:
 	# packet's ttl and is supposed to be the number of hops till destination. TTL3 is third packet's
 	# ttl and is supposed to be the number of hops till destination. packet_size1 should be the desired
 	# size for the first packet. packet_size2 should be the desired size for the second packet.
-	# packet_size3 should be the desired size for the third packet.
-	def latency_tester(self, dest_name, packet_size1, TTL1, packet_size2, TTL2, packet_size3, TTL3, outputFile):
+	# packet_size3 should be the desired size for the third packet. sample_size is the number of packet
+	# triples to be sent.
+	def latency_tester(self, dest_name, packet_size1, TTL1, packet_size2, TTL2, packet_size3, TTL3, sample_size, outputFile):
 		dest_addr = socket.gethostbyname(dest_name)
 		icmp = socket.getprotobyname('icmp')
 		count = 1
-		while count <= 50:
+		while count <= sample_size:
 			recv_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
 			recv_socket.bind(("", self.port))
 			recv_socket.settimeout(self.timeout)

@@ -36,22 +36,28 @@ printer("\nDone!",output)
 group_1 = LatencyTools()
 group_2 = LatencyTools()
 
+PACKET1_SIZE = 1500
+GROUP1_PACKET2_SIZE = 500
+GROUP2_PACKET2_SIZE = 50
+PACKET3_SIZE = 0
+SAMPLE_SIZE = 50
+
 printer("\nII) Sending groups of packet triples...",output)
 
 printer("\n==================== Group #1 ====================",output)
-printer("\nPacket 1 --> Length = 1.5KB | TTL = "+str(k-1)+" hops",output)
-printer("Packet 2 --> Length = 500B  | TTL = "+str(k)+" hops",output)
-printer("Packet 3 --> Length = 0B    | TTL = "+str(k)+" hops\n",output)
-rtt1 = group_1.latency_tester(dest_name, 1500, k-1, 500, k, 0, k, output)
+printer("\nPacket 1 --> Length = "+str(PACKET1_SIZE)+"B | TTL = "+str(k-1)+" hops",output)
+printer("Packet 2 --> Length = "+str(GROUP1_PACKET2_SIZE)+"B | TTL = "+str(k)+" hops",output)
+printer("Packet 3 --> Length = "+str(PACKET3_SIZE)+"B | TTL = "+str(k)+" hops\n",output)
+rtt1 = group_1.latency_tester(dest_name, PACKET1_SIZE, k-1, GROUP1_PACKET2_SIZE, k, PACKET3_SIZE, k, SAMPLE_SIZE, output)
 
 printer("\n==================== Group #2 ====================",output)
-printer("\nPacket 1 --> Length = 1.5KB | TTL = "+str(k-1)+" hops",output)
-printer("Packet 2 --> Length = 50B   | TTL = "+str(k)+" hops",output)
-printer("Packet 3 --> Length = 0B    | TTL = "+str(k)+" hops\n",output)
-rtt2 = group_2.latency_tester(dest_name, 1500, k-1, 50, k, 0, k, output)
+printer("\nPacket 1 --> Length = "+str(PACKET1_SIZE)+"B | TTL = "+str(k-1)+" hops",output)
+printer("Packet 2 --> Length = "+str(GROUP2_PACKET2_SIZE)+"B | TTL = "+str(k)+" hops",output)
+printer("Packet 3 --> Length = "+str(PACKET3_SIZE)+"B | TTL = "+str(k)+" hops\n",output)
+rtt2 = group_2.latency_tester(dest_name, PACKET1_SIZE, k-1, GROUP2_PACKET2_SIZE, k, PACKET3_SIZE, k, SAMPLE_SIZE, output)
 
 if rtt1 > rtt2:
-	cap = (500-50)*8/(rtt1-rtt2)
+	cap = (GROUP1_PACKET2_SIZE-GROUP2_PACKET2_SIZE)*8/(rtt1-rtt2)
 	printer("\nEnd-link capacity = "+str(cap)+" bps",output)
 else:
 	printer("\n**Unable to calculate end-link capacity as unexpected values for RTT were obtained. Please try running again.",output)
