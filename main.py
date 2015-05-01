@@ -36,10 +36,11 @@ printer("\nDone!",output)
 group_1 = LatencyTools()
 group_2 = LatencyTools()
 
-PACKET1_SIZE = 1500
-GROUP1_PACKET2_SIZE = 500
-GROUP2_PACKET2_SIZE = 50
-PACKET3_SIZE = 0
+# DO NOT ALTER THE VALUES FOR PACKET SIZE
+PACKET1_SIZE = 1500 # This packet MUST have MTU size
+GROUP1_PACKET2_SIZE = 500 # This packet MUST be greater than the one from group 2
+GROUP2_PACKET2_SIZE = 50 # This packet MUST be smaller than the one from group 1
+PACKET3_SIZE = 0 # This packet MUST have size ZERO
 SAMPLE_SIZE = 50
 
 printer("\nII) Sending groups of packet triples...",output)
