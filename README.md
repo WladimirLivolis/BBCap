@@ -1,16 +1,13 @@
-# projetoRNP
+### DESENVOLVIMENTO DE UMA TÉCNICA DE MEDIÇÃO ATIVA E NÃO-COOPERATIVA PARA AFERIR QUALIDADE DE BANDA LARGA FIXA
 
-DESENVOLVIMENTO DE UMA TÉCNICA DE MEDIÇÃO ATIVA E NÃO-COOPERATIVA PARA AFERIR QUALIDADE DE BANDA LARGA FIXA
+##### Etapas:
 
-ETAPAS:
+- I - *Traceroute*
+- II - *Envio das sondas*
+- III - *Cálculo da capacidade*
 
-I   - TRACEROUTE
-II  - ENVIO DAS SONDAS
-III - CÁLCULO DA CAPACIDADE
-
-
-<<<<<<<<<< ALGORITMO >>>>>>>>>>
-
+#### <<<<<<<<<< ALGORITMO >>>>>>>>>>
+```
 1. Executa traceroute para calcular o número de saltos K até o destino;
 2. Envia 2 grupos de 50 trios de pacotes para o destino:
 	2.1 Grupo 1:
@@ -29,13 +26,13 @@ III - CÁLCULO DA CAPACIDADE
 		2.2.2 Retorna menor RTT (rrt2).
 3. Calcula capacidade do enlace no último salto: C = (500-50)*8/(rrt1-rtt2) [CONDIÇÃO: rrt1 > rrt2].
 
-*   Os pacotes 1 de cada trio de pacotes não geram resposta por possuírem TTL < K ou por serem pacotes malformados.
+*   Os pacotes 1 de cada trio de pacotes não geram resposta por possuirem TTL < K ou por serem pacotes malformados.
 **  Os pacotes 2 de cada trio de pacotes não geram resposta por serem pacotes malformados.
 *** Os pacotes 3 de cada trio de pacotes possuem tamanho igual ao tamanho de seus headers.
+```
 
-
-PSEUDO-CÓDIGOS:
-
+#### PSEUDO-CÓDIGOS:
+```
 --------------------------------------------------------
 Algoritmo 1 - CalculaNumSaltos(destino)
 --------------------------------------------------------
@@ -46,7 +43,7 @@ NumMaxSaltos <- 30
 enquanto (NÃO NumSaltosExcedido) E (NÃO DestinoAlcançado) faça
 	enviaPacoteICMP(ttl, destino)
 	resposta <- recebePacote()
-	endereço <- obtémEndereço(resposta)
+	endereço <- obtemEndereco(resposta)
 	se endereço IGUAL destino então
 		DestinoAlcançado <- Verdadeiro
 	senão
@@ -100,3 +97,4 @@ Algoritmo 3 - CalculaCapacidade(Tam1, Tam2, rrt1, rtt2)
 cap <- (Tam1-Tam2)*8/(rtt1-rtt2)
 retorna cap
 --------------------------------------------------------
+```
