@@ -1,4 +1,4 @@
-import socket, sys, time, numpy
+import socket, sys, time
 from ICMP import ICMPLib
 
 # Author: Wladimir Cabral
@@ -15,34 +15,47 @@ class LatencyTools:
 		print status
 		outputFile.write(status+"\n")
 
-	# Sends packet triples to destination and counts the time (RTT) between the sending of the first
-	# packet and the response to the third packet. At the end, returns the smallest RTT. TTL1 is first
-	# packet's ttl and is supposed to be the number of hops till destination minus one. TTL2 is second
-	# packet's ttl and is supposed to be the number of hops till destination. TTL3 is third packet's
-	# ttl and is supposed to be the number of hops till destination. packet_size1 should be the desired
-	# size for the first packet. packet_size2 should be the desired size for the second packet.
-	# packet_size3 should be the desired size for the third packet. sample_size is the number of packet
-	# triples to be sent.
-	def latency_tester(self, dest_name, packet_size1, TTL1, packet_size2, TTL2, packet_size3, TTL3, sample_size, outputFile):
-		dest_addr = socket.gethostbyname(dest_name)
+	# Returns the minimum of a array of rtts
+	def minimum(self):
+		min = self.array[0]
+		for i in range(1,len(self.array)):
+			rtt = self.array[i]
+			if rtt < min:
+				min = rtt
+		return min
+
+	# Sends packet trains to destination and counts the time (RTT) between the sending of the first
+	# packet and the response to the last packet. At the end, returns the smallest RTT. 
+	# TTL1 is the TTL for PACKET_TYPE1 and is supposed to be the number of hops till destination minus one. 
+	# TTL2 is the TTL for PACKET_TYPE2 and is supposed to be the number of hops till destination.
+	# TTL3 is the TTL for PACKET_TYPE3 and is supposed to be the number of hops till destination.
+	# packet_size1 should be the desired size for PACKET_TYPE1.
+	# packet_size2 should be the desired size for PACKET_TYPE2.
+	# packet_size3 should be the desired size for PACKET_TYPE3.
+	# number_of_packet_trains is the number of packet trains to be sent.
+	# number_of_packets_per_train is the number of packets per train and must be at least 3.
+	def latency_tester(self, destination_name, packet_size1, TTL1, packet_size2, TTL2, packet_size3, TTL3, number_of_packet_trains, number_of_packets_per_train, output_file):
+		dest_addr = socket.gethostbyname(destination_name)
 		icmp = socket.getprotobyname('icmp')
-		count = 1
-		while count <= sample_size:
+		i = 1
+		while i <= number_of_packet_trains:
 			recv_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
 			recv_socket.bind(("", self.port))
 			recv_socket.settimeout(self.timeout)
-			# Packet 1
+			# PACKET_TYPE_1
 			send_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
 			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL1)
-			send_socket.sendto(abs(packet_size1-36)*"J", (dest_name, self.port))
+			send_socket.sendto(abs(packet_size1-36)*"J", (destination_name, self.port))
 			t0 = time.time()
-			# Packet 2
-			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL2)
-			send_socket.sendto(abs(packet_size2-36)*"J", (dest_name, self.port))
-			# Packet 3
+			# PACKET_TYPE_2
+			j = 2 # counting first and last packets
+			while j < number_of_packets_per_train:
+				send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL2)
+				send_socket.sendto(abs(packet_size2-36)*"J", (destination_name, self.port))
+				j += 1
+			# PACKET_TYPE_3
 			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL3)
-			icmp_sender = ICMPLib()
-			icmp_sender.send_icmp_packet(send_socket, dest_name, self.port, packet_size3)
+			ICMPLib().send_icmp_packet(send_socket, destination_name, self.port, packet_size3)
 			try:
 				data = recv_socket.recv(1024)
 				t1 = time.time()
@@ -51,13 +64,12 @@ class LatencyTools:
 			except:
 				print sys.exc_info()[0]
 				rtt = -1
-				self.array.append(1)
 				pass
 			finally:
 				send_socket.close()
 				recv_socket.close()
-			self.printer("*Packet Triple #"+str(count)+" --> RTT = "+str(rtt)+"s",outputFile)
-			count += 1
-		rtt = numpy.min(self.array)
-		self.printer("\nSmallest RTT = "+str(rtt)+"s",outputFile)
+			self.printer("*Packet Train #"+str(i)+" --> RTT = "+str(rtt)+"s",output_file)
+			i += 1
+		rtt = self.minimum()
+		self.printer("\nSmallest RTT = "+str(rtt)+"s",output_file)
 		return rtt		

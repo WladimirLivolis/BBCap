@@ -44,7 +44,7 @@ class ICMPLib:
 
 		    # Make a dummy header with a 0 checksum.
 		    header = struct.pack("bbHHh", self.ICMP_ECHO_REQUEST, 0, my_checksum, ID, 1)
-		    headerSize = sys.getsizeof(header) - 1
+		    headerSize = sys.getsizeof(header) - 1 # 44 bytes
 		    if int(packet_size) > headerSize:
 		    	data = (packet_size - headerSize) * "Q"
 		    else:
