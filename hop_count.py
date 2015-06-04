@@ -13,6 +13,7 @@ class HopCount:
 		self.max_hops = 30
 		self.timeout = 0.5
 
+	# Prints to screen and to file
 	def printer(self, status, outputFile):
 		print status
 		outputFile.write(status+"\n")	

@@ -11,6 +11,7 @@ class LatencyTools:
 		self.timeout = 2
 		self.array = []
 
+	# Prints to screen and to file
 	def printer(self, status, outputFile):
 		print status
 		outputFile.write(status+"\n")
