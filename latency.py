@@ -26,37 +26,37 @@ class LatencyTools:
 		return min
 
 	# Sends packet trains to destination and counts the time (RTT) between the sending of the first
-	# packet and the response to the last packet. At the end, returns the smallest RTT. 
-	# TTL1 is the TTL for PACKET_TYPE1 and is supposed to be the number of hops till destination minus one. 
-	# TTL2 is the TTL for PACKET_TYPE2 and is supposed to be the number of hops till destination.
-	# TTL3 is the TTL for PACKET_TYPE3 and is supposed to be the number of hops till destination.
-	# packet_size1 should be the desired size for PACKET_TYPE1.
-	# packet_size2 should be the desired size for PACKET_TYPE2.
-	# packet_size3 should be the desired size for PACKET_TYPE3.
-	# number_of_packet_trains is the number of packet trains to be sent.
-	# number_of_packets_per_train is the number of packets per train and must be at least 3.
-	def latency_tester(self, destination_name, packet_size1, TTL1, packet_size2, TTL2, packet_size3, TTL3, number_of_packet_trains, number_of_packets_per_train, output_file):
+	# packet (locomotive) and the response to the last packet (tail). At the end, returns the smallest RTT. 
+	# TTL1 is the TTL for LOCOMOTIVE packets and is supposed to be the number of hops till destination minus one. 
+	# TTL2 is the TTL for CAR packets and is supposed to be the number of hops till destination.
+	# TTL3 is the TTL for TAIL packets and is supposed to be the number of hops till destination.
+	# LOCOMOTIVE_SIZE is the size for LOCOMOTIVE packets and is supposed to be MTU size.
+	# CAR_SIZE is the size for CAR packets and is supposed to be either 500 bytes for GROUP1 or 50 bytes for GROUP2.
+	# TAIL_SIZE is the size for TAIL packets and is supposed to be ZERO.
+	# NUMBER_OF_TRAINS is the number of packet trains to be sent.
+	# NUMBER_OF_CARS is the number of cars per train to be sent.
+	def latency_tester(self, destination_name, LOCOMOTIVE_SIZE, TTL1, CAR_SIZE, TTL2, TAIL_SIZE, TTL3, NUMBER_OF_TRAINS, NUMBER_OF_CARS, output_file):
 		dest_addr = socket.gethostbyname(destination_name)
 		icmp = socket.getprotobyname('icmp')
 		i = 1
-		while i <= number_of_packet_trains:
+		while i <= NUMBER_OF_TRAINS:
 			recv_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
 			recv_socket.bind(("", self.port))
 			recv_socket.settimeout(self.timeout)
-			# PACKET_TYPE_1
+			# LOCOMOTIVE
 			send_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
 			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL1)
-			send_socket.sendto(abs(packet_size1-36)*"J", (destination_name, self.port))
+			send_socket.sendto(abs(LOCOMOTIVE_SIZE-36)*"J", (destination_name, self.port))
 			t0 = time.time()
-			# PACKET_TYPE_2
-			j = 2 # counting first and last packets
-			while j < number_of_packets_per_train:
+			# CARS
+			j = 1
+			while j <= NUMBER_OF_CARS:
 				send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL2)
-				send_socket.sendto(abs(packet_size2-36)*"J", (destination_name, self.port))
+				send_socket.sendto(abs(CAR_SIZE-36)*"J", (destination_name, self.port))
 				j += 1
-			# PACKET_TYPE_3
+			# TAIL
 			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL3)
-			ICMPLib().send_icmp_packet(send_socket, destination_name, self.port, packet_size3)
+			ICMPLib().send_icmp_packet(send_socket, destination_name, self.port, TAIL_SIZE)
 			try:
 				data = recv_socket.recv(1024)
 				t1 = time.time()

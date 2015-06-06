@@ -23,42 +23,33 @@ class HopCount:
 		dest_addr = socket.gethostbyname(dest_name)
 		icmp = socket.getprotobyname('icmp')
 		ttl = 1
-		done = False
 		destinationReached = False
 		hopCountExceeded = False
-		while not done:
+		while not (destinationReached or hopCountExceeded):
 			recv_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
+			recv_socket.bind(("", self.port))
+			recv_socket.settimeout(self.timeout)
 			send_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
 			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, ttl)
-			recv_socket.bind(("", self.port))
 			ICMPLib().send_icmp_packet(send_socket, dest_name, self.port, 0)
-			recv_socket.settimeout(self.timeout)
 			curr_addr = None
-			curr_name = None
 			try:
 				_, curr_addr = recv_socket.recvfrom(512)
 				curr_addr = curr_addr[0]
-				try:
-					curr_name = socket.gethostbyaddr(curr_addr)[0]
-				except socket.error:
-					curr_name = curr_addr
 			except socket.error:
 				pass
 			finally:
 				send_socket.close()
 				recv_socket.close()
-			#if curr_addr is not None:
-			#	curr_host = "%s (%s)" % (curr_name, curr_addr)
-			#else:
-			#	curr_host = "*"
-			#print "%d\t%s" % (ttl, curr_host)
-			ttl += 1
-			destinationReached = (curr_addr == dest_addr)
-			hopCountExceeded = (ttl > self.max_hops)
-			done = (destinationReached or hopCountExceeded)
+			if curr_addr == dest_addr:
+				destinationReached = True
+			else:
+				ttl += 1
+				if ttl > self.max_hops:
+					hopCountExceeded = True
 		if destinationReached:
-			self.printer(str(ttl-1)+" hops till "+dest_name,outputFile)
-			return ttl-1
+			self.printer(str(ttl)+" hops till "+dest_name,outputFile)
+			return ttl
 		else:
 			self.printer("Hop Count Exceeded!",outputFile)
 			return -1
