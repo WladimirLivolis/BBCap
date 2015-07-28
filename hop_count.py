@@ -1,8 +1,6 @@
 import socket
 from ICMP import ICMPLib
 
-# Based upon the following Oracle's tutorial: https://blogs.oracle.com/ksplice/entry/learning_by_doing_writing_your
-#
 # Author: Wladimir Cabral
 # 	  wladimircabral@gmail.com
 
@@ -18,7 +16,7 @@ class HopCount:
 		print status
 		outputFile.write(status+"\n")	
 	
-	# Returns the number of hops till destination. Works exactly as traceroute.
+	# Returns the number of hops till destination. It's a variation of traceroute.
 	def counter(self, dest_name, outputFile):
 		dest_addr = socket.gethostbyname(dest_name)
 		icmp = socket.getprotobyname('icmp')
@@ -31,7 +29,7 @@ class HopCount:
 			recv_socket.settimeout(self.timeout)
 			send_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
 			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, ttl)
-			ICMPLib().send_icmp_packet(send_socket, dest_name, self.port, 0)
+			ICMPLib().send_icmp_packet(send_socket, dest_name, self.port, 0, 'request')
 			curr_addr = None
 			try:
 				_, curr_addr = recv_socket.recvfrom(512)

@@ -26,16 +26,16 @@ class LatencyTools:
 		return min
 
 	# Sends packet trains to destination and counts the time (RTT) between the sending of the first
-	# packet (locomotive) and the response to the last packet (tail). At the end, returns the smallest RTT. 
+	# packet (locomotive) and the response to the last packet (caboose). At the end, returns the smallest RTT. 
 	# TTL1 is the TTL for LOCOMOTIVE packets and is supposed to be the number of hops till destination minus one. 
 	# TTL2 is the TTL for CAR packets and is supposed to be the number of hops till destination.
-	# TTL3 is the TTL for TAIL packets and is supposed to be the number of hops till destination.
+	# TTL3 is the TTL for CABOOSE packets and is supposed to be the number of hops till destination.
 	# LOCOMOTIVE_SIZE is the size for LOCOMOTIVE packets and is supposed to be MTU size.
 	# CAR_SIZE is the size for CAR packets and is supposed to be either 500 bytes for GROUP1 or 50 bytes for GROUP2.
-	# TAIL_SIZE is the size for TAIL packets and is supposed to be ZERO.
+	# CABOOSE_SIZE is the size for CABOOSE packets and is supposed to be 44 bytes.
 	# NUMBER_OF_TRAINS is the number of packet trains to be sent.
 	# NUMBER_OF_CARS is the number of cars per train to be sent.
-	def latency_tester(self, destination_name, LOCOMOTIVE_SIZE, TTL1, CAR_SIZE, TTL2, TAIL_SIZE, TTL3, NUMBER_OF_TRAINS, NUMBER_OF_CARS, output_file):
+	def latency_tester(self, destination_name, LOCOMOTIVE_SIZE, TTL1, CAR_SIZE, TTL2, CABOOSE_SIZE, TTL3, NUMBER_OF_TRAINS, NUMBER_OF_CARS, output_file):
 		dest_addr = socket.gethostbyname(destination_name)
 		icmp = socket.getprotobyname('icmp')
 		i = 1
@@ -46,17 +46,17 @@ class LatencyTools:
 			# LOCOMOTIVE
 			send_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
 			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL1)
-			send_socket.sendto(abs(LOCOMOTIVE_SIZE-36)*"J", (destination_name, self.port))
+			ICMPLib().send_icmp_packet(send_socket, destination_name, self.port, LOCOMOTIVE_SIZE, 'reply')
 			t0 = time.time()
 			# CARS
 			j = 1
 			while j <= NUMBER_OF_CARS:
 				send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL2)
-				send_socket.sendto(abs(CAR_SIZE-36)*"J", (destination_name, self.port))
+				ICMPLib().send_icmp_packet(send_socket, destination_name, self.port, CAR_SIZE, 'reply')
 				j += 1
-			# TAIL
+			# CABOOSE
 			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL3)
-			ICMPLib().send_icmp_packet(send_socket, destination_name, self.port, TAIL_SIZE)
+			ICMPLib().send_icmp_packet(send_socket, destination_name, self.port, CABOOSE_SIZE, 'request')
 			try:
 				data = recv_socket.recv(1024)
 				t1 = time.time()

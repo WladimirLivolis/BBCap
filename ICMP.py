@@ -9,6 +9,7 @@ class ICMPLib:
 
 	def __init__(self):
 		self.ICMP_ECHO_REQUEST = 8
+		self.ICMP_ECHO_REPLY = 0
 
 	def checksum(self, source_string):
 		    sum = 0
@@ -33,7 +34,13 @@ class ICMPLib:
 
 		    return answer
 
-	def send_icmp_packet(self, my_socket, dest_addr, port, packet_size):
+	def send_icmp_packet(self, my_socket, dest_addr, port, packet_size, MESSAGE_TYPE):
+
+		    # Check whether it's a Echo or Echo Reply Message
+		    if MESSAGE_TYPE=='reply':
+			icmp_echo_message = self.ICMP_ECHO_REPLY
+		    else:
+			icmp_echo_message = self.ICMP_ECHO_REQUEST
 
 		    dest_addr  =  socket.gethostbyname(dest_addr)
 
@@ -43,9 +50,9 @@ class ICMPLib:
 		    my_checksum = 0
 
 		    # Make a dummy header with a 0 checksum.
-		    header = struct.pack("bbHHh", self.ICMP_ECHO_REQUEST, 0, my_checksum, ID, 1)
+	    	    header = struct.pack("bbHHh", icmp_echo_message, 0, my_checksum, ID, 1)
 		    headerSize = sys.getsizeof(header) - 1 # 44 bytes
-		    if int(packet_size) > headerSize:
+		    if int(packet_size) > headerSize: # Here we make sure packet_size = headerSize + data
 		    	data = (packet_size - headerSize) * "Q"
 		    else:
 			data = ""
@@ -56,7 +63,7 @@ class ICMPLib:
 		    # Now that we have the right checksum, we put that in. It's just easier
 		    # to make up a new header than to stuff it into the dummy.
 		    header = struct.pack(
-			"bbHHh", self.ICMP_ECHO_REQUEST, 0, socket.htons(my_checksum), ID, 1
+			"bbHHh", icmp_echo_message, 0, socket.htons(my_checksum), ID, 1
 		    )
 		    packet = header + data
 		    my_socket.sendto(packet, (dest_addr, port))
