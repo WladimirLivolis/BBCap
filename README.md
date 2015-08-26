@@ -45,4 +45,7 @@ Uncompress the GitHub project folder and it's ready for use.
 ```
 USAGE: sudo python main.py -d DESTINATION [-t NUMBER_OF_TRAINS] [-c NUMBER_OF_CARS]
 ```
+
+The destination parameter is mandatory, while the others are optional. 
+
 Notice you must provide root credentials as we are dealing with ICMP packets.
