@@ -7,8 +7,8 @@ from ICMP import ICMPLib
 class LatencyTools:
 
 	def __init__(self):
-		self.port = 33434
-		self.timeout = 2
+		self.port = 33434 # port
+		self.timeout = 2 # timeout for socket receive
 		self.array = []
 
 	# Prints to screen and to file
@@ -36,41 +36,42 @@ class LatencyTools:
 	# NUMBER_OF_TRAINS is the number of packet trains to be sent.
 	# NUMBER_OF_CARS is the number of cars per train to be sent.
 	def latency_tester(self, destination_name, LOCOMOTIVE_SIZE, TTL1, CAR_SIZE, TTL2, CABOOSE_SIZE, TTL3, NUMBER_OF_TRAINS, NUMBER_OF_CARS, output_file):
-		dest_addr = socket.gethostbyname(destination_name)
-		icmp = socket.getprotobyname('icmp')
-		i = 1
+		dest_addr = socket.gethostbyname(destination_name) # destination address
+		icmp = socket.getprotobyname('icmp')  # get the number assigned to ICMP protocol (1)
+		i = 1 # number of trains initial value
 		while i <= NUMBER_OF_TRAINS:
+			# Create a socket for receiving data
 			recv_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
-			recv_socket.bind(("", self.port))
-			recv_socket.settimeout(self.timeout)
-			# LOCOMOTIVE
+			recv_socket.bind(("", self.port)) # set port
+			recv_socket.settimeout(self.timeout) # set timeout
+			# Create a socket for sending LOCOMOTIVE packet
 			send_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
-			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL1)
-			ICMPLib().send_icmp_packet(send_socket, destination_name, self.port, LOCOMOTIVE_SIZE, 'reply')
-			t0 = time.time()
-			# CARS
-			j = 1
+			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL1) # set ttl
+			ICMPLib().send_icmp_packet(send_socket, destination_name, self.port, LOCOMOTIVE_SIZE, 'reply') # send LOCOMOTIVE packet to destination
+			t0 = time.time() # register initial time
+			# Set socket for sending CARS packets
+			j = 1 # number of cars initial value
 			while j <= NUMBER_OF_CARS:
-				send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL2)
-				ICMPLib().send_icmp_packet(send_socket, destination_name, self.port, CAR_SIZE, 'reply')
+				send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL2) # set ttl
+				ICMPLib().send_icmp_packet(send_socket, destination_name, self.port, CAR_SIZE, 'reply') # send CAR packet to destination
 				j += 1
-			# CABOOSE
-			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL3)
-			ICMPLib().send_icmp_packet(send_socket, destination_name, self.port, CABOOSE_SIZE, 'request')
+			# Set socket for sending CABOOSE packet
+			send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL3) # set ttl
+			ICMPLib().send_icmp_packet(send_socket, destination_name, self.port, CABOOSE_SIZE, 'request') # send CABOOSE packet to destination
 			try:
-				data = recv_socket.recv(1024)
-				t1 = time.time()
-				rtt = t1 - t0
+				data = recv_socket.recv(1024) # Receive packet reply
+				t1 = time.time() # register receiving time
+				rtt = t1 - t0 # calculate rtt
 				self.array.append(rtt)
 			except:
 				print sys.exc_info()[0]
 				rtt = -1
 				pass
-			finally:
+			finally: # close sockets
 				send_socket.close()
 				recv_socket.close()
 			self.printer("*Packet Train #"+str(i)+" --> RTT = "+str(rtt)+"s",output_file)
 			i += 1
-		rtt = self.minimum()
+		rtt = self.minimum() # get the smallest rtt
 		self.printer("\nSmallest RTT = "+str(rtt)+"s",output_file)
 		return rtt		

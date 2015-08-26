@@ -30,6 +30,7 @@ class ICMPLib:
 		    answer = ~sum
 		    answer = answer & 0xffff
 
+		    # Swap bytes
 		    answer = answer >> 8 | (answer << 8 & 0xff00)
 
 		    return answer
