@@ -1,7 +1,9 @@
+# PmonCap
+
 This project aims to estimate the bandwidth of a remote host by measuring
 the capacity of the link connected to it.
 
-##### 1. How do we do it?
+### 1. How we do it
 
 ```
 -----------------------------------------------------------------------------------------------------------------
@@ -32,7 +34,7 @@ ALGORITHM: END-LINK CAPACITY CALCULATOR
 -----------------------------------------------------------------------------------------------------------------
 ```
 
-##### 2. How to install it?
+### 2. How to install it
 
 ```
 Requirements: Python 2.7+
@@ -40,12 +42,14 @@ OS: Unix systems
 ```
 Uncompress the GitHub project folder and it's ready for use.
 
-##### 3. How to use it?
+### 3. How to use it
 
 ```
-USAGE: sudo python main.py -d DESTINATION [-t NUMBER_OF_TRAINS] [-c NUMBER_OF_CARS]
+USAGE: sudo python main.py -d DESTINATION -f INPUT_FILE -t NUMBER_OF_TRAINS -c NUMBER_OF_CARS
 ```
 
-The destination parameter is mandatory, while the others are optional. 
+Either *destination* or *file* is to be provided.
 
-Notice you must provide root credentials as we are dealing with ICMP packets.
+The parameters *number of trains* and *cars per train* are required in either case.
+
+**Notice you must provide root credentials as we are dealing with ICMP packets.**
