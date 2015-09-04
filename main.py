@@ -81,43 +81,57 @@ ALGORITHM
 * Locomotive and car packets do not cause response as they are ICMP ECHO REPLY MESSAGES.
 ------------------------------------------------------------------------
 '''))
-parser.add_argument('-d','--destination', help='Destination IP address', required=True)
-parser.add_argument('-t','--trains',help='Number of packet trains (Default: 100)', default=100, type=int)
-parser.add_argument('-c','--cars',help='Number of cars per train (Default: 100)', default=100, type=int)
+parser.add_argument('-d','--destination', help='Destination IP address')
+parser.add_argument('-t','--trains',help='Number of packet trains', required=True, type=int)
+parser.add_argument('-c','--cars',help='Number of cars per train', required=True, type=int)
+parser.add_argument('-f','--file',help='Input file', type=argparse.FileType('r'))
 args = parser.parse_args()
 
 DESTINATION_NAME = args.destination
 NUMBER_OF_TRAINS = args.trains
 NUMBER_OF_CARS = args.cars
+INPUT_FILE = args.file
 
-# Calculates number of hops till destination
-printer("\nI) Running traceroute...\n",output)
-K = HopCount().counter(DESTINATION_NAME, output)
-printer("\nDone!",output) 
+rtt_array = []
 
-# Sends probes to destination
-printer("\nII) Sending groups of packet trains...\n",output)
+if INPUT_FILE: # check if input file is given
+		# If so, no need to send probes as we read rtt values from it
+		rtt_array = LatencyTools().latency_reader(INPUT_FILE.name, NUMBER_OF_TRAINS, NUMBER_OF_CARS, 2, output)
+elif not DESTINATION_NAME: # otherwise, check if destination is given
+	parser.error("No destination or input file, please add --destination or --file")
+else: # if destination is passed instead of input file then
+	# I) Calculates number of hops till destination
+	printer("\nI) Running traceroute...\n",output)
+	K = HopCount().counter(DESTINATION_NAME, output)
+	printer("\nDone!",output) 
 
-printer("TRAIN = LOCOMOTIVE + CARS + CABOOSE\n",output)
-printer("# of TRAINS: "+str(NUMBER_OF_TRAINS),output)
-printer("# of CARS (PER TRAIN): "+str(NUMBER_OF_CARS),output)
+	# II) Sends probes to destination
+	printer("\nII) Sending groups of packet trains...\n",output)
 
-printer("\n==================== Group #1 ====================",output)
-printer("\nLOCOMOTIVE --> Length = "+str(LOCOMOTIVE_SIZE)+"B | TTL = "+str(K-1)+" hops",output)
-printer("CAR --> Length = "+str(GROUP1_CAR_SIZE)+"B | TTL = "+str(K)+" hops",output)
-printer("CABOOSE --> Length = "+str(CABOOSE_SIZE)+"B | TTL = "+str(K)+" hops\n",output)
-RTT1 = LatencyTools().latency_tester(DESTINATION_NAME, LOCOMOTIVE_SIZE, K-1, GROUP1_CAR_SIZE, K, CABOOSE_SIZE, K, NUMBER_OF_TRAINS, NUMBER_OF_CARS, output)
+	printer("TRAIN = LOCOMOTIVE + CARS + CABOOSE\n",output)
+	printer("# of TRAINS: "+str(NUMBER_OF_TRAINS),output)
+	printer("# of CARS (PER TRAIN): "+str(NUMBER_OF_CARS),output)
 
-printer("\n==================== Group #2 ====================",output)
-printer("\nLOCOMOTIVE --> Length = "+str(LOCOMOTIVE_SIZE)+"B | TTL = "+str(K-1)+" hops",output)
-printer("CAR --> Length = "+str(GROUP2_CAR_SIZE)+"B | TTL = "+str(K)+" hops",output)
-printer("CABOOSE --> Length = "+str(CABOOSE_SIZE)+"B | TTL = "+str(K)+" hops\n",output)
-RTT2 = LatencyTools().latency_tester(DESTINATION_NAME, LOCOMOTIVE_SIZE, K-1, GROUP2_CAR_SIZE, K, CABOOSE_SIZE, K, NUMBER_OF_TRAINS, NUMBER_OF_CARS, output)
+	printer("\n==================== Group #1 ====================",output)
+	printer("\nLOCOMOTIVE --> Length = "+str(LOCOMOTIVE_SIZE)+"B | TTL = "+str(K-1)+" hops",output)
+	printer("CAR --> Length = "+str(GROUP1_CAR_SIZE)+"B | TTL = "+str(K)+" hops",output)
+	printer("CABOOSE --> Length = "+str(CABOOSE_SIZE)+"B | TTL = "+str(K)+" hops\n",output)
+	RTT1 = LatencyTools().latency_tester(DESTINATION_NAME, LOCOMOTIVE_SIZE, K-1, GROUP1_CAR_SIZE, K, CABOOSE_SIZE, K, NUMBER_OF_TRAINS, NUMBER_OF_CARS, output)
 
-printer("\nDone!",output)
+	printer("\n==================== Group #2 ====================",output)
+	printer("\nLOCOMOTIVE --> Length = "+str(LOCOMOTIVE_SIZE)+"B | TTL = "+str(K-1)+" hops",output)
+	printer("CAR --> Length = "+str(GROUP2_CAR_SIZE)+"B | TTL = "+str(K)+" hops",output)
+	printer("CABOOSE --> Length = "+str(CABOOSE_SIZE)+"B | TTL = "+str(K)+" hops\n",output)
+	RTT2 = LatencyTools().latency_tester(DESTINATION_NAME, LOCOMOTIVE_SIZE, K-1, GROUP2_CAR_SIZE, K, CABOOSE_SIZE, K, NUMBER_OF_TRAINS, NUMBER_OF_CARS, output)
 
-# Calculates end-link capacity
+	rtt_array = [RTT1,RTT2]
+	printer("\nDone!",output)
+
+# III) Calculates end-link capacity
 printer("\nIII) Calculating end-link capacity...",output)
+
+RTT1,RTT2 = rtt_array[0],rtt_array[1]
+
 if RTT1 > RTT2:
 	CAPACITY = NUMBER_OF_CARS*(GROUP1_CAR_SIZE-GROUP2_CAR_SIZE)*8/(RTT1-RTT2)
 	printer("\nEnd-link capacity = "+str(CAPACITY)+" bps",output)

@@ -9,7 +9,6 @@ class LatencyTools:
 	def __init__(self):
 		self.port = 33434 # port
 		self.timeout = 2 # timeout for socket receive
-		self.array = []
 
 	# Prints to screen and to file
 	def printer(self, status, outputFile):
@@ -17,10 +16,10 @@ class LatencyTools:
 		outputFile.write(status+"\n")
 
 	# Returns the minimum of a array of rtts
-	def minimum(self):
-		min = self.array[0]
-		for i in range(1,len(self.array)):
-			rtt = self.array[i]
+	def minimum(self, rtt_array):
+		min = rtt_array[0]
+		for i in range(1,len(rtt_array)):
+			rtt = rtt_array[i]
 			if rtt < min:
 				min = rtt
 		return min
@@ -39,6 +38,7 @@ class LatencyTools:
 		dest_addr = socket.gethostbyname(destination_name) # destination address
 		icmp = socket.getprotobyname('icmp')  # get the number assigned to ICMP protocol (1)
 		i = 1 # number of trains initial value
+		rtt_array = []
 		while i <= NUMBER_OF_TRAINS:
 			# Create a socket for receiving data
 			recv_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
@@ -62,7 +62,7 @@ class LatencyTools:
 				data = recv_socket.recv(1024) # Receive packet reply
 				t1 = time.time() # register receiving time
 				rtt = t1 - t0 # calculate rtt
-				self.array.append(rtt)
+				rtt_array.append(rtt)
 			except:
 				print sys.exc_info()[0]
 				rtt = -1
@@ -72,6 +72,32 @@ class LatencyTools:
 				recv_socket.close()
 			self.printer("*Packet Train #"+str(i)+" --> RTT = "+str(rtt)+"s",output_file)
 			i += 1
-		rtt = self.minimum() # get the smallest rtt
+		rtt = self.minimum(rtt_array) # get the smallest rtt
 		self.printer("\nSmallest RTT = "+str(rtt)+"s",output_file)
-		return rtt		
+		return rtt
+
+	# Reads rrt values from local file.
+	# Returns the smallest rtt for each group.
+	# NUMBER_OF_TRAINS: number of packet trains per group.
+	# NUMBER_OF_CARS: number of packet cars per train.
+	# NUMBER_OF_GROUPS: number of packet train groups.
+	def latency_reader(self, input_file, NUMBER_OF_TRAINS, NUMBER_OF_CARS, NUMBER_OF_GROUPS, output_file):
+		self.printer("\nI-II) Reading RTT values from file...\n",output_file)
+		in_file = open(input_file) # Open file 
+		i = 1 # number of groups initial value
+		rtt_array = []
+		while i <= NUMBER_OF_GROUPS: # for each group
+			self.printer("\n ========== GROUP #"+str(i)+" - RTTs: ========== \n",output_file)
+			aux_array = []
+			j = 1 # number of trains initial value
+			while j <= NUMBER_OF_TRAINS: # for each packet train
+				rtt = float(in_file.readline()) # read line (rtt) from file
+				self.printer("*Packet Train #"+str(j)+" --> RTT = "+str(rtt)+"s",output_file)
+				aux_array.append(rtt)
+				j += 1
+			rtt_min = self.minimum(aux_array) # get the smallest rtt for this group
+			self.printer("\nSmallest RTT = "+str(rtt_min)+"s",output_file)
+			rtt_array.append(rtt_min)
+			i += 1
+		return rtt_array
+			
