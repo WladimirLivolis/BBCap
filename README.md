@@ -116,6 +116,12 @@ First group first. Second group second.
 
 So if you have 5 values for each group, your file will have 10 values (10 lines). 
 
+The command you should run in this case follows (assuming rtt values were obtained by sending 100 car packets per train):
+
+```
+sudo python main.py -f file -t 5 -c 100
+```
+
 The expected end-link capacity for this example is 31 mbps. 
 
 **Notice you must provide equal number of RTT values for each group. The reason for that is both groups are supposed to have same number of packet trains.**
