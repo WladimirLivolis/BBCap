@@ -45,12 +45,12 @@ Uncompress the GitHub project folder and it's ready for use.
 ### 3. How to use it
 
 ```
-USAGE: sudo python main.py -d DESTINATION -f INPUT_FILE -t NUMBER_OF_TRAINS -c NUMBER_OF_CARS
+USAGE: sudo python pmonCap.py -d DESTINATION -f INPUT_FILE -t NUMBER_OF_TRAINS -c NUMBER_OF_CARS
 ```
 
 Either *destination* or *file* is to be provided.
 
-The parameters *number of trains* and *cars per train* are required in either case.
+The parameters *number of trains* and *cars per train* are required when *file* is given.
 
 **Notice you must provide root credentials as we are dealing with ICMP packets.**
 
@@ -119,7 +119,7 @@ So if you have 5 values for each group, your file will have 10 values (10 lines)
 The command you should run in this case follows (assuming rtt values were obtained by sending 100 car packets per train):
 
 ```
-sudo python main.py -f file -t 5 -c 100
+sudo python pmonCap.py -f file -t 5 -c 100
 ```
 
 The expected end-link capacity for this example is 31 mbps. 
