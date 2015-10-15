@@ -1,7 +1,9 @@
+# PmonCap
+
 This project aims to estimate the bandwidth of a remote host by measuring
 the capacity of the link connected to it.
 
-##### 1. How do we do it?
+### 1. How we do it
 
 ```
 -----------------------------------------------------------------------------------------------------------------
@@ -32,7 +34,7 @@ ALGORITHM: END-LINK CAPACITY CALCULATOR
 -----------------------------------------------------------------------------------------------------------------
 ```
 
-##### 2. How to install it?
+### 2. How to install it
 
 ```
 Requirements: Python 2.7+
@@ -40,12 +42,86 @@ OS: Unix systems
 ```
 Uncompress the GitHub project folder and it's ready for use.
 
-##### 3. How to use it?
+### 3. How to use it
 
 ```
-USAGE: sudo python main.py -d DESTINATION [-t NUMBER_OF_TRAINS] [-c NUMBER_OF_CARS]
+USAGE: sudo python main.py -d DESTINATION -f INPUT_FILE -t NUMBER_OF_TRAINS -c NUMBER_OF_CARS
 ```
 
-The destination parameter is mandatory, while the others are optional. 
+Either *destination* or *file* is to be provided.
 
-Notice you must provide root credentials as we are dealing with ICMP packets.
+The parameters *number of trains* and *cars per train* are required in either case.
+
+**Notice you must provide root credentials as we are dealing with ICMP packets.**
+
+### 4. Local file specification
+
+This file contains RTT values for each packet train group. Hence, it replaces the sending of packet trains to destination.
+
+You must create your file as follows:
+
+```
+group 1 - packet train #1 RTT
+group 1 - packet train #2 RTT
+group 1 - packet train #3 RTT
+group 2 - packet train #1 RTT
+group 2 - packet train #2 RTT
+group 2 - packet train #3 RTT
+```
+
+For each line, one RTT value.
+
+Now, let's see one real example.
+
+Imagine you have 5 RTT values for each group.
+
+These are the RTT values for group 1:
+
+```
+0.0480751991272
+0.0439519882202
+0.0450620651245
+0.0477740764618
+0.0406899452209
+```
+
+These are the RTT values for group 2:
+
+```
+0.0292770862579
+0.0310640335083
+0.0362038612366
+0.033399105072
+0.0450990200043
+```
+
+Your file must contain all those values. Nothing more, nothing less.
+
+Your file:
+
+```
+0.0480751991272
+0.0439519882202
+0.0450620651245
+0.0477740764618
+0.0406899452209
+0.0292770862579
+0.0310640335083
+0.0362038612366
+0.033399105072
+0.0450990200043
+```
+
+First group first. Second group second.
+
+So if you have 5 values for each group, your file will have 10 values (10 lines). 
+
+The command you should run in this case follows (assuming rtt values were obtained by sending 100 car packets per train):
+
+```
+sudo python main.py -f file -t 5 -c 100
+```
+
+The expected end-link capacity for this example is 31 mbps. 
+
+**Notice you must provide equal number of RTT values for each group. The reason for that is both groups are supposed to have same number of packet trains.**
