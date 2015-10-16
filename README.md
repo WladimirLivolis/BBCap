@@ -1,7 +1,7 @@
-# PmonCap
+# pmonCap
 
 This project aims to estimate the bandwidth of a remote host by measuring
-the capacity of the link connected to it.
+the capacity of the link immediately connected to it (i.e. the link in the very last hop to the remote host).
 
 ### 1. How we do it
 
@@ -50,7 +50,7 @@ USAGE: sudo python pmonCap.py -d DESTINATION -f INPUT_FILE -t NUMBER_OF_TRAINS -
 
 Either *destination* or *file* is to be provided.
 
-The parameters *number of trains* and *cars per train* are required when *file* is given.
+The parameters *number of trains* and *cars per train* are required when *file* is given, for their *default value* (100) may not match your *file*.
 
 **Notice you must provide root credentials as we are dealing with ICMP packets.**
 
@@ -69,9 +69,9 @@ group 2 - packet train #2 RTT
 group 2 - packet train #3 RTT
 ```
 
-For each line, one RTT value.
+For each line, one RTT value (in seconds).
 
-Now, let's see one real example.
+Now, let's see a real example.
 
 Imagine you have 5 RTT values for each group.
 
@@ -97,7 +97,7 @@ These are the RTT values for group 2:
 
 Your file must contain all those values. Nothing more, nothing less.
 
-Your file:
+Here is what your file should look like:
 
 ```
 0.0480751991272
