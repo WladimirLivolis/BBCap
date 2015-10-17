@@ -45,12 +45,14 @@ Uncompress the GitHub project folder and it's ready for use.
 ### 3. How to use it
 
 ```
-USAGE: sudo python pmonCap.py -d DESTINATION -f INPUT_FILE -t NUMBER_OF_TRAINS -c NUMBER_OF_CARS
+USAGE: sudo python pmonCap.py [-v] -d DESTINATION -f INPUT_FILE -t NUMBER_OF_TRAINS -c NUMBER_OF_CARS
 ```
 
 Either *destination* or *file* is to be provided.
 
 The parameters *number of trains* and *cars per train* are required when *file* is given, for their *default value* (100) may not match your *file*.
+
+You may want to consider using verbose parameter (*-v*) for debugging purposes.
 
 **Notice you must provide root credentials as we are dealing with ICMP packets.**
 
