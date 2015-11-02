@@ -81,7 +81,7 @@ def capacity_calculator(destination_address, TTL1, TTL2, TTL3, NUMBER_OF_TRAINS,
 		group2_rtt_array.append(rtt2)
 		group1_rtt_array.sort()
 		group2_rtt_array.sort()
-		logging.getLogger('__main__').debug("Sequence #"+str(i)+" - Capacity estimates:")
+		logging.getLogger('__main__').debug("Capacity estimates #"+str(i)+":")
 		cap_array = capacity_estimation(group1_rtt_array, group2_rtt_array, NUMBER_OF_CARS) # calculates capacity for each pair of rtts 
 		i += 1
 	capacity = cap_array[0] # returns the capacity value associated with the smallest pair of rtt values
@@ -96,8 +96,8 @@ def send_packet_train(destination_address, TTL1, TTL2, TTL3, NUMBER_OF_CARS, GRO
 	# Create a socket for sending LOCOMOTIVE packet
 	send_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, ICMP_PROTOCOL_NUMBER)
 	send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL1) # set ttl
-	send_icmp_packet(send_socket, destination_address, LOCOMOTIVE_SIZE, 'reply') # send LOCOMOTIVE packet to destination
 	t0 = time.time() # register sending time
+	send_icmp_packet(send_socket, destination_address, LOCOMOTIVE_SIZE, 'reply') # send LOCOMOTIVE packet to destination
 	# Set socket for sending CARS packets
 	i = 1 # number of cars initial value
 	while i <= NUMBER_OF_CARS:
@@ -228,12 +228,13 @@ def main():
 	fh = logging.FileHandler("./logs/"+timeString+".out")
 	fh.setLevel(logging.DEBUG)
 
-	# Creates formatter
-	formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+	# Creates formatter for file and console handlers
+	fh_formatter = logging.Formatter("%(asctime)s - %(message)s")
+	ch_formatter = logging.Formatter("%(message)s")
 
 	# Adds formatter to ch & fh
-	ch.setFormatter(formatter)
-	fh.setFormatter(formatter)
+	ch.setFormatter(ch_formatter)
+	fh.setFormatter(fh_formatter)
 
 	# Adds ch & fh to logger
 	logger.addHandler(ch)
@@ -297,10 +298,10 @@ def main():
 
 		logger.debug("TRAIN = LOCOMOTIVE + CARS + CABOOSE")
 	
-		logger.debug("LOCOMOTIVE --> Length = 1500B | TTL = "+str(K-1)+" hops")
-		logger.debug("GROUP1 CAR --> Length = 500B  | TTL = "+str(K)+" hops")
-		logger.debug("GROUP2 CAR --> Length = 50B   | TTL = "+str(K)+" hops")
-		logger.debug("CABOOSE    --> Length = 44B   | TTL = "+str(K)+" hops")
+		logger.debug("LOCOMOTIVE --> Length = "+str(LOCOMOTIVE_SIZE)+" | TTL = "+str(K-1)+" hops")
+		logger.debug("GROUP1 CAR --> Length = "+str(GROUP1_CAR_SIZE)+" | TTL = "+str(K)+" hops")
+		logger.debug("GROUP2 CAR --> Length = "+str(GROUP2_CAR_SIZE)+" | TTL = "+str(K)+" hops")
+		logger.debug("CABOOSE --> Length = "+str(CABOOSE_SIZE)+" | TTL = "+str(K)+" hops")
 
 		logger.debug("# of TRAINS: "+str(NUMBER_OF_TRAINS))
 		logger.debug("# of CARS (PER TRAIN): "+str(NUMBER_OF_CARS))
