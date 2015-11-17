@@ -1,6 +1,6 @@
-import argparse, logging, os, socket, struct, sys, textwrap, time
+import argparse, logging, math, os, socket, struct, sys, textwrap, time
 	 
-# USAGE: sudo python pmonCap.py [-h] [-v] -f FILE -d DESTINATION -t TRAINS -c CARS
+# USAGE: sudo python pmonCap.py [-h] [-v] -f FILE -d DESTINATION -t TRAINS -c CARS -cp CONFIDENCE -rp RISK
 #
 # Coded using Python 2.7
 #
@@ -15,7 +15,7 @@ TIMEOUT = 2
 LOCOMOTIVE_SIZE = 1500
 GROUP1_CAR_SIZE = 500
 GROUP2_CAR_SIZE = 50
-CABOOSE_SIZE = 44
+CABOOSE_SIZE = 0
 ICMP_ECHO_REQUEST = 8
 ICMP_ECHO_REPLY = 0
 ICMP_PROTOCOL_NUMBER = 1
@@ -96,8 +96,7 @@ def send_packet_train(destination_address, TTL1, TTL2, TTL3, NUMBER_OF_CARS, GRO
 	# Create a socket for sending LOCOMOTIVE packet
 	send_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, ICMP_PROTOCOL_NUMBER)
 	send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL1) # set ttl
-	t0 = time.time() # register sending time
-	send_icmp_packet(send_socket, destination_address, LOCOMOTIVE_SIZE, 'reply') # send LOCOMOTIVE packet to destination
+	t0 = send_icmp_packet(send_socket, destination_address, LOCOMOTIVE_SIZE, 'reply') # send LOCOMOTIVE packet to destination. t0 -> sending time
 	# Set socket for sending CARS packets
 	i = 1 # number of cars initial value
 	while i <= NUMBER_OF_CARS:
@@ -173,7 +172,7 @@ def checksum(source_string):
 
 	    return answer
 
-# Creates and sends icmp packet to destination.
+# Creates and sends icmp packet to destination. Returns sending time.
 def send_icmp_packet(my_socket, dest_addr, packet_size, MESSAGE_TYPE):
 
 	    # Check whether it's a Echo or Echo Reply Message
@@ -189,9 +188,9 @@ def send_icmp_packet(my_socket, dest_addr, packet_size, MESSAGE_TYPE):
 
 	    # Make a dummy header with a 0 checksum.
     	    header = struct.pack("bbHHh", icmp_echo_message, 0, my_checksum, ID, 1)
-	    headerSize = sys.getsizeof(header) - 1 # 44 bytes
-	    if int(packet_size) >= headerSize: # Here we make sure packet_size = headerSize + data
-	    	data = (packet_size - headerSize) * "Q"
+	    header_size = len(header) + 20 # ICMP header length (8 bytes) + IPv4 header length (20 bytes)
+	    if packet_size >= header_size: # Here we make sure packet_size = header_size + data
+	    	data = (packet_size - header_size) * "Q"
 	    else:
 		data = ""
 
@@ -204,7 +203,9 @@ def send_icmp_packet(my_socket, dest_addr, packet_size, MESSAGE_TYPE):
 		"bbHHh", icmp_echo_message, 0, socket.htons(my_checksum), ID, 1
 	    )
 	    packet = header + data
-	    my_socket.sendto(packet, (dest_addr, 1)) # Port number is irrelevant for ICMP		
+	    sending_time = time.time() # Register sending time
+	    my_socket.sendto(packet, (dest_addr, 1)) # Port number is irrelevant for ICMP
+	    return sending_time		
 
 def main():
 
@@ -256,10 +257,12 @@ def main():
 	*** WARNING: You must have root permissions as this script uses ICMP packets.
 	'''))
 	parser.add_argument('-d','--destination', help='Destination IP address')
-	parser.add_argument('-t','--trains',help='Number of packet trains (Default: 100)', default=100, type=int)
-	parser.add_argument('-c','--cars',help='Number of car packets per train (Default: 100)', default=100, type=int)
-	parser.add_argument('-f','--file',help='Input file', type=argparse.FileType('r'))
-	parser.add_argument('-v','--verbose',help='Verbose', action='store_true')
+	parser.add_argument('-t','--trains', help='Number of packet trains (Default: 100)', default=100, type=int)
+	parser.add_argument('-c','--cars', help='Number of car packets per train (Default: 100)', default=100, type=int)
+	parser.add_argument('-f','--file', help='Input file', type=argparse.FileType('r'))
+	parser.add_argument('-v','--verbose', help='Verbose', action='store_true')
+	parser.add_argument('-cp','--confidence', help='Confidence param', type=float)
+	parser.add_argument('-rp','--risk', help='Risk param', type=float)
 	args = parser.parse_args()
 
 	DESTINATION_NAME = args.destination
@@ -267,9 +270,16 @@ def main():
 	NUMBER_OF_CARS = args.cars
 	INPUT_FILE = args.file
 	VERBOSE = args.verbose
+	CONFIDENCE = args.confidence
+	RISK = args.risk
 
 	if VERBOSE: # sets logger to debug level
 		logger.setLevel(logging.DEBUG)
+
+	if CONFIDENCE and RISK: # Given confidence & risk params, calculates number of samples (trains)
+		number_of_samples = math.log(1/(1-CONFIDENCE))/math.log(1/(1-RISK))
+		NUMBER_OF_TRAINS = int(math.ceil(number_of_samples))
+		logger.debug("Minimum Sample Size found: "+str(NUMBER_OF_TRAINS)+" (# trains)")
 
 	if INPUT_FILE: # check if input file is given
 			# If so, no need to send probes as we read rtt values from it
