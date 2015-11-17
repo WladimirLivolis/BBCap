@@ -45,12 +45,14 @@ Uncompress the GitHub project folder and it's ready for use.
 ### 3. How to use it
 
 ```
-USAGE: sudo python pmonCap.py [-v] -d DESTINATION -f INPUT_FILE -t NUMBER_OF_TRAINS -c NUMBER_OF_CARS
+USAGE: sudo python pmonCap.py [-v] -d DESTINATION -f INPUT_FILE -t NUMBER_OF_TRAINS -c NUMBER_OF_CARS -cp CONFIDENCE -rp RISK
 ```
 
 Either *destination* or *file* is to be provided.
 
 The parameters *number of trains* and *cars per train* are required when *file* is given, for their *default value* (100) may not match your *file*.
+
+*Confidence* and *risk* params can be used to find the minimum sample size (# trains).
 
 You may want to consider using verbose parameter (*-v*) for debugging purposes.
 
