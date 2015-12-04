@@ -1,4 +1,4 @@
-# pmonCap
+# BBCap
 
 This project aims to estimate the bandwidth of a remote host by measuring
 the capacity of the link immediately connected to it (i.e. the link in the very last hop to the remote host).
