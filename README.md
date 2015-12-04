@@ -45,7 +45,7 @@ Uncompress the GitHub project folder and it's ready for use.
 ### 3. How to use it
 
 ```
-USAGE: sudo python pmonCap.py [-v] -d DESTINATION -f INPUT_FILE -t NUMBER_OF_TRAINS -c NUMBER_OF_CARS -cp CONFIDENCE -rp RISK
+USAGE: sudo python bbcap.py [-v] -d DESTINATION -f INPUT_FILE -t NUMBER_OF_TRAINS -c NUMBER_OF_CARS -cp CONFIDENCE -rp RISK
 ```
 
 Either *destination* or *file* is to be provided.
@@ -123,7 +123,7 @@ So if you have 5 values for each group, your file will have 10 values (10 lines)
 The command you should run in this case follows (assuming rtt values were obtained by sending 100 car packets per train):
 
 ```
-sudo python pmonCap.py -f file -t 5 -c 100
+sudo python bbcap.py -f file -t 5 -c 100
 ```
 
 The expected end-link capacity for this example is 31 mbps. 
