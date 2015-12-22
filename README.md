@@ -15,14 +15,14 @@ ALGORITHM: END-LINK CAPACITY CALCULATOR
         2.1.1 For each packet train of GROUP_1:
             2.1.1.1 ONE packet (LOCOMOTIVE)* is sent: SIZE = 1500 bytes (MTU) & TTL = K - 1;
             2.1.1.2 ONE or MORE packets (CARS)* is/are sent: SIZE = 500 bytes & TTL = K;
-            2.1.1.3 ONE packet (CABOOSE) is sent: SIZE = 44 bytes & TTL = K;
+            2.1.1.3 ONE packet (CABOOSE) is sent: SIZE = 28 bytes & TTL = K;
             2.1.1.4 Returns RTT = time between the sending of the locomotive and the response to the caboose;
         2.1.2 Returns the smallest RTT (RTT1).
     2.2 GROUP_2:
         2.2.1 For each packet train of GROUP_2:
             2.2.1.1 ONE packet (LOCOMOTIVE)* is sent: SIZE = 1500 bytes (MTU) & TTL = K - 1;
             2.2.1.2 ONE or MORE packets (CARS)* is/are sent: SIZE = 50 bytes & TTL = K;
-            2.2.1.3 ONE packet (CABOOSE) is sent: SIZE = 44 bytes & TTL = K;
+            2.2.1.3 ONE packet (CABOOSE) is sent: SIZE = 28 bytes & TTL = K;
             2.2.1.4 Returns RTT = time between the sending of the locomotive and the response to the caboose;
         2.2.2 Returns the smallest RTT (RTT2).
 3. Calculates end-link capacity: C = N*(SIZE1-SIZE2)*8/(RTT1-RTT2),
