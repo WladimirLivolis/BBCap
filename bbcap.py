@@ -61,11 +61,14 @@ def hop_counter(dest_addr):
 def capacity_estimation(array1,array2, NUMBER_OF_CARS):
 	cap_array = []
 	for i in range (0,len(array1)): # for each pair of rtts
-		rtt1 = float(array1[i]) # pick i-th element from group 1 rtt
-		rtt2 = float(array2[i]) # pick i-th element from group 2 rtt
-		cap = NUMBER_OF_CARS*(GROUP1_CAR_SIZE-GROUP2_CAR_SIZE)*8/(rtt1-rtt2) # calculates capacity
-		logging.getLogger('__main__').debug(str(cap)+" bps")
-		cap_array.append(cap)
+		rtt1 = array1[i] # pick i-th element from group 1 rtt
+		rtt2 = array2[i] # pick i-th element from group 2 rtt
+		try:
+			cap = NUMBER_OF_CARS*(GROUP1_CAR_SIZE-GROUP2_CAR_SIZE)*8/(rtt1-rtt2) # calculates capacity
+			logging.getLogger('__main__').debug(str(cap)+" bps")
+			cap_array.append(cap)
+		except ZeroDivisionError:
+			pass
 	return cap_array		
 	
 # Returns end-link capacity
