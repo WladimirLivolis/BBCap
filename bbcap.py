@@ -60,7 +60,8 @@ def hop_counter(dest_addr):
 # Returns array of capacity estimates
 def capacity_estimation(array1,array2, NUMBER_OF_CARS):
 	cap_array = []
-	for i in range (0,len(array1)): # for each pair of rtts
+	i = 0
+	while i < len(array1): # for each pair of rtts
 		rtt1 = array1[i] # pick i-th element from group 1 rtt
 		rtt2 = array2[i] # pick i-th element from group 2 rtt
 		while rtt1 < rtt2 and i < len(array1)-1: # here we make sure rtt1 is always greater than rtt2
@@ -73,6 +74,7 @@ def capacity_estimation(array1,array2, NUMBER_OF_CARS):
 			cap_array.append(cap)
 		except ZeroDivisionError:
 			pass
+		i += 1
 	return cap_array		
 	
 # Returns end-link capacity
