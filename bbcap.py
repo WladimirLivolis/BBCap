@@ -1,6 +1,6 @@
 import argparse, logging, math, os, socket, struct, sys, textwrap, time
 	 
-# USAGE: sudo python pmonCap.py [-h] [-v] -f FILE -d DESTINATION -t TRAINS -c CARS -cp CONFIDENCE -rp RISK
+# USAGE: sudo python pmonCap.py [-h] [-v] -f FILE -d DESTINATION -t TRAINS -c CARS -cp CONFIDENCE -rp RISK --locomotive-size --bigger-car-size --smaller-car-size --caboose-size --max-hops --timeout
 #
 # Coded using Python 2.7
 #

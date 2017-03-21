@@ -45,7 +45,7 @@ Uncompress the GitHub project folder and it's ready for use.
 ### 3. How to use it
 
 ```
-USAGE: sudo python bbcap.py [-v] -d DESTINATION -f INPUT_FILE -t NUMBER_OF_TRAINS -c NUMBER_OF_CARS -cp CONFIDENCE -rp RISK
+USAGE: sudo python bbcap.py [-v] -d DESTINATION -f INPUT_FILE -t NUMBER_OF_TRAINS -c NUMBER_OF_CARS -cp CONFIDENCE -rp RISK --locomotive-size --bigger-car-size --smaller-car-size --caboose-size --max-hops --timeout
 ```
 
 Either *destination* or *file* is to be provided.
@@ -55,6 +55,10 @@ The parameters *number of trains* and *cars per train* are required when *file* 
 *Confidence* and *risk* params can be used to find the minimum sample size (# trains).
 
 You may want to consider using verbose parameter (*-v*) for debugging purposes.
+
+We also provide optional parameters for setting locomotive packet size (--locomotive-size), group 1 car size (--bigger-car-size), group 2 car size (--smaller-car-size), and caboose packet size (--caboose-size).
+
+There are also an optional parameter for specifying the maximum number of hops (--max-hops) and another optional parameter for defining the timeout (--timeout) for listening sockets.
 
 **Notice you must provide root credentials as we are dealing with ICMP packets.**
 
