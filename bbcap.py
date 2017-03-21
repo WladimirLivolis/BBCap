@@ -1,6 +1,6 @@
 import argparse, logging, math, os, socket, struct, sys, textwrap, time
 	 
-# USAGE: sudo python pmonCap.py [-h] [-v] -f FILE -d DESTINATION -t TRAINS -c CARS -cp CONFIDENCE -rp RISK --locomotive-size --bigger-car-size --smaller-car-size --caboose-size --max-hops --timeout
+# USAGE: sudo python pmonCap.py [-h] [-v] -f FILE -d DESTINATION -t TRAINS -c CARS --locomotive-size --bigger-car-size --smaller-car-size --caboose-size --max-hops --timeout
 #
 # Coded using Python 2.7
 #
@@ -63,6 +63,10 @@ def capacity_estimation(array1,array2, NUMBER_OF_CARS):
 	for i in range (0,len(array1)): # for each pair of rtts
 		rtt1 = array1[i] # pick i-th element from group 1 rtt
 		rtt2 = array2[i] # pick i-th element from group 2 rtt
+		while rtt1 < rtt2 and i < len(array1)-1: # here we make sure rtt1 is always greater than rtt2
+                    i += 1
+                    rtt1 = array1[i] # pick i-th element from group 1 rtt
+                    rtt2 = array2[i] # pick i-th element from group 2 rtt                        
 		try:
 			cap = NUMBER_OF_CARS*(GROUP1_CAR_SIZE-GROUP2_CAR_SIZE)*8/(rtt1-rtt2) # calculates capacity
 			logging.getLogger('__main__').debug(str(cap)+" bps")
@@ -300,8 +304,6 @@ def main():
 	parser.add_argument('-c','--cars', help='Number of car packets per train (Default: 100)', default=100, type=int)
 	parser.add_argument('-f','--file', help='Input file', type=argparse.FileType('r'))
 	parser.add_argument('-v','--verbose', help='Verbose', action='store_true')
-	parser.add_argument('-cp','--confidence', help='Confidence param', type=float)
-	parser.add_argument('-rp','--risk', help='Risk param', type=float)
 	parser.add_argument('--locomotive-size', help='Locomotive Packet Size', default=1500, type=int)
 	parser.add_argument('--bigger-car-size', help='Bigger Car Packet Size', default=500, type=int)
 	parser.add_argument('--smaller-car-size', help='Smaller Car Packet Size', default=50, type=int)
@@ -316,18 +318,11 @@ def main():
 	NUMBER_OF_CARS = args.cars
 	INPUT_FILE = args.file
 	VERBOSE = args.verbose
-	CONFIDENCE = args.confidence
-	RISK = args.risk
 
 	set_global_variables(args.max_hops, args.timeout, args.locomotive_size, args.bigger_car_size, args.smaller_car_size, args.caboose_size)
 
 	if VERBOSE: # sets logger to debug level
 		logger.setLevel(logging.DEBUG)
-
-	if CONFIDENCE and RISK: # Given confidence & risk params, calculates number of samples (trains)
-		number_of_samples = math.log(1/(1-CONFIDENCE))/math.log(1/(1-RISK))
-		NUMBER_OF_TRAINS = int(math.ceil(number_of_samples))
-		logger.debug("Minimum Sample Size found: "+str(NUMBER_OF_TRAINS)+" (# trains)")
 
 	if INPUT_FILE: # check if input file is given
 			# If so, no need to send probes as we read rtt values from it
